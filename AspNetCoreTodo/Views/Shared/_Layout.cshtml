@@ -39,6 +39,8 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Todo" asp-action="Index">ToDo</a>
                         </li>
                     </ul>
+                    <partial name="_AdminActionsPartial"/><!--De la nueva manera-->
+                    <!-- @await Html.PartialAsync("_AdminActionsPartial") // De la vieja manera-->
                 </div>
             </div>
         </nav>
