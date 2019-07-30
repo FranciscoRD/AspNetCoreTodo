@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using AspNetCoreTodo.Services;
 using AspNetCoreTodo.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace AspNetCoreTodo.Controllers
 {
@@ -13,15 +14,21 @@ namespace AspNetCoreTodo.Controllers
     public class TodoController : Controller
     {
         private readonly ITodoItemService _todoItemService;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public TodoController(ITodoItemService todoItemService)
+        public TodoController(ITodoItemService todoItemService, 
+            UserManager<IdentityUser> userManager)
         {
             _todoItemService = todoItemService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
-            var items = await _todoItemService.GetIncompleteItemsAsync();
+            var currenUser = await _userManager.GetUserAsync(User);
+            if(currenUser == null) return Challenge();
+
+            var items = await _todoItemService.GetIncompleteItemsAsync(currenUser);
 
             var model = new TodoViewModel()
             {
@@ -37,7 +44,10 @@ namespace AspNetCoreTodo.Controllers
                 return RedirectToAction("Index");
             }
 
-            var succesful = await _todoItemService.AddItemAsync(newItem);
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(currentUser == null) return Challenge();
+
+            var succesful = await _todoItemService.AddItemAsync(newItem,currentUser);
 
             if (!succesful)
             {
@@ -54,7 +64,11 @@ namespace AspNetCoreTodo.Controllers
                 return RedirectToAction("Index");
             }
 
-            var succesful = await _todoItemService.MarkDoneAsync(id);
+            var currentUser = await _userManager.GetUserAsync(User);
+            if(currentUser == null) return Challenge();
+
+            var succesful = await _todoItemService.MarkDoneAsync(id, currentUser);
+            
             if (!succesful)
             {
                 return BadRequest("No se puede marcar como hecho");
