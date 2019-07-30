@@ -7,7 +7,7 @@ namespace AspNetCoreTodo.Services
 {
     public class FakeTodoItemService : ITodoItemService
     {
-        public Task<TodoItem[]> GetImcompleteItemsAsync()
+        public Task<TodoItem[]> GetIncompleteItemsAsync()
         {
             var item1 = new TodoItem
             {
